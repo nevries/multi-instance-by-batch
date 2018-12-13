@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1cwwa8a" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.0">
+  <bpmn:process id="parent" name="Parent Process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Process start">
+      <bpmn:extensionElements>
+        <camunda:formData businessKey="bk">
+          <camunda:formField id="bk" label="Business Key" type="string">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="multiInstanceSize" label="Size of multi instance" type="long" defaultValue="987" />
+          <camunda:formField id="noBusinessErrorProbability" label="Kein fachlicher Fehler WK [0..1)" type="string" defaultValue="1" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_0w1qbog</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="prepare" name="Prepare Instances" camunda:delegateExpression="${prepareList}">
+      <bpmn:incoming>SequenceFlow_0w1qbog</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1ybujka</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0w1qbog" sourceRef="StartEvent_1" targetRef="prepare" />
+    <bpmn:sequenceFlow id="SequenceFlow_1ybujka" sourceRef="prepare" targetRef="Task_0r6qket" />
+    <bpmn:endEvent id="IntermediateThrowEvent_1sv2vdf" name="All instances successfully executed">
+      <bpmn:incoming>SequenceFlow_0lw1n69</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_11jyt8f" name="All instances compensated">
+      <bpmn:incoming>SequenceFlow_11h9s2g</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="BoundaryEvent_1f54n4e" name="Error in one instance" camunda:asyncBefore="true" attachedToRef="Task_0r6qket">
+      <bpmn:outgoing>SequenceFlow_11h9s2g</bpmn:outgoing>
+      <bpmn:errorEventDefinition errorRef="Error_0ynanl1" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0lw1n69" sourceRef="Task_0r6qket" targetRef="IntermediateThrowEvent_1sv2vdf" />
+    <bpmn:sequenceFlow id="SequenceFlow_11h9s2g" sourceRef="BoundaryEvent_1f54n4e" targetRef="EndEvent_11jyt8f" />
+    <bpmn:callActivity id="Task_0r6qket" name="Execute all Instances" calledElement="child">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}_child" />
+        <camunda:in source="noBusinessErrorProbability" target="noBusinessErrorProbability" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1ybujka</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0lw1n69</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="${list}" camunda:elementVariable="item" />
+    </bpmn:callActivity>
+  </bpmn:process>
+  <bpmn:error id="Error_0ynanl1" name="Error_InstanceFailed" errorCode="InstanceFailed" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="parent">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="139" y="283" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="125" y="326" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0spbt76_di" bpmnElement="prepare">
+        <dc:Bounds x="224" y="261" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0w1qbog_di" bpmnElement="SequenceFlow_0w1qbog">
+        <di:waypoint x="175" y="301" />
+        <di:waypoint x="224" y="301" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="229" y="279" width="0" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ybujka_di" bpmnElement="SequenceFlow_1ybujka">
+        <di:waypoint x="324" y="301" />
+        <di:waypoint x="382" y="301" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="447" y="279" width="0" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_16qc0vf_di" bpmnElement="IntermediateThrowEvent_1sv2vdf">
+        <dc:Bounds x="547" y="283" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="535" y="326" width="62" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BoundaryEvent_15ppi2c_di" bpmnElement="BoundaryEvent_1f54n4e">
+        <dc:Bounds x="446" y="323" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="394" y="363" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_11jyt8f_di" bpmnElement="EndEvent_11jyt8f">
+        <dc:Bounds x="547" y="394" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="532" y="437" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0lw1n69_di" bpmnElement="SequenceFlow_0lw1n69">
+        <di:waypoint x="482" y="301" />
+        <di:waypoint x="547" y="301" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_11h9s2g_di" bpmnElement="SequenceFlow_11h9s2g">
+        <di:waypoint x="464" y="359" />
+        <di:waypoint x="464" y="412" />
+        <di:waypoint x="547" y="412" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="CallActivity_1igsgfe_di" bpmnElement="Task_0r6qket">
+        <dc:Bounds x="382" y="261" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,27 @@
+spring.datasource:
+  hikari.maximum-pool-size: 30
+  hikari.pool-name: MyPool
+  url: jdbc:h2:./camunda-db;DB_CLOSE_DELAY=-1;MVCC=TRUE;DB_CLOSE_ON_EXIT=FALSE
+  username: sa
+  password: sa
+#  url: jdbc:postgresql://localhost/camunda
+#  username: camunda
+#  password: camunda
+  
+
+spring.h2.console.enabled: true
+
+
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+    firstName: Demo
+  filter:
+    create: All tasks
+  job-execution:
+    core-pool-size: 10
+    max-pool-size: 20
+  
+  server.port: 8080
+  
